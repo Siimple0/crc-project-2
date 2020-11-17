@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from tkinter import *
-# from tkinter import ttk
 from time import sleep
 from matplotlib.colors import ListedColormap
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -13,7 +12,6 @@ from matplotlib.figure import Figure
 
 class Schelling:
 
-    # Only with 2 races for now, later it will be possible to send an array with tuples for each race
     def __init__(self, size, empty_ratio, similarity_threshold, neighbour_depth):
         self.model_configure(size, empty_ratio, similarity_threshold, neighbour_depth)
 
@@ -43,8 +41,6 @@ class Schelling:
                 (1 - empty_ratio) / 5,
                 (1 - empty_ratio) / 5
             ]
-
-        print(ratios)
 
         # Actual size of population
         population_size = int(np.sqrt(self.size)) ** 2
@@ -104,12 +100,15 @@ class Schelling:
         
         self.update_plot()
 
+
     def update_plot(self):
         self.ax.clear()
         self.ax.axis('off')
         
         self.ax.pcolormesh(self.population, cmap=self.cmap, edgecolors='w', linewidths=1, vmin=0, vmax=5)
         self.fig.canvas.draw()
+
+
 
 
 class Application(Tk):
@@ -132,41 +131,36 @@ class Application(Tk):
 
         self.configure_components()
 
-    def run_thread(self):
-        x = threading.Thread(target=self.run_graph, args=(), daemon=True)
-        x.start()
 
     def run_graph(self):
         for i in range(self.number_iterations): 
             self.run_round()
+
 
     def run_round(self):
         self.schelling.run_round()
         self.schelling.update_plot()
         self.canvas.draw()
 
-    # TODO: initialize every component with the correct values and so on
+
     def configure_components(self):
         self.iteration_box.insert(0, self.number_iterations)
 
         self.population_box.insert(0, self.schelling.size)
-        self.population_box.configure(validatecommand=self.update_test)
+        # self.population_box.configure(validatecommand=self.validate_and_update)
     
         self.empty_ratio_box.set(self.schelling.empty_ratio)
         self.similarity_threshold_box.set(self.schelling.similarity_threshold)
 
         i = 0
         for x in self.races_ratio_boxes:
-        # for (x, y) in self.races_ratio_boxes:
-            if i == 0 or i == 1:
-                x.set(0.5)
-            # y.current(i)
-            i += 1
+            self.races_ratio_boxes[i].set((1 - self.empty_ratio_box.get()) / 5)
+            i = i + 1
 
         self.start_button.configure(command=self.run_graph)
-        self.reset_button.configure(command=self.print_values)
-        # self.stop_button.configure()
         self.step_button.configure(command=self.run_round)
+
+        self.load_button.configure(command=self.validate_and_update)
         
     
     def create_and_add_model(self):
@@ -180,10 +174,37 @@ class Application(Tk):
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=True)
 
-    def update_test(self):
+
+    def validate_and_update(self):
+        if self.validate_probabilities():
+            self.update()
+        else:
+            threading.Thread(target=self.popupmsg, args=("The sum of the Empty Ratio and the Races' Ratios needs to be equal to 1!", )).start()
+        return True
+
+
+    def popupmsg(self, msg):
+        popup = Tk()
+        popup.resizable(False, False)
+        popup.wm_title("Invalid values!")
+        label = Label(popup, text=msg)
+        label.pack(side="top", fill="x", pady=10)
+        B1 = Button(popup, text="Okay", command = popup.destroy)
+        B1.pack(pady=10)
+        popup.mainloop()
+
+
+    def validate_probabilities(self):
+        ratios = self.get_race_ratios()
+        if (sum(ratios) + float(self.empty_ratio_box.get())) == 1.0:
+            return True
+        return False
+
+
+    def update(self):
         self.number_iterations = int(self.iteration_box.get())
 
-        ratios =  [float(x.get()) for x in self.races_ratio_boxes] 
+        ratios = self.get_race_ratios()
 
         self.schelling.model_configure(int(self.population_box.get()), float(self.empty_ratio_box.get()), float(self.similarity_threshold_box.get()), 1, ratios)
 
@@ -193,8 +214,6 @@ class Application(Tk):
 
         self.draw_canvas()
        
-        return True
-
 
     def create_text_box_frames(self):
         # create iteration frame
@@ -217,7 +236,7 @@ class Application(Tk):
         population_label.pack(side=LEFT)
 
         population_value = StringVar()
-        self.population_box = Entry(population_frame, textvariable=population_value, validate="focusout")
+        self.population_box = Entry(population_frame, textvariable=population_value) # , validate="focusout")
         self.population_box.pack(side=LEFT)
 
         population_frame.pack(side=TOP)
@@ -253,22 +272,18 @@ class Application(Tk):
         for i in range(5):
             race_frame = Frame(races_frame)
 
-            race_label_text = "Race " + str(i + 1) + " "
+
+            race_label_text = "Race " + chr(ord('A') + i) + " Ratio "
             race_label = Label(race_frame, text=race_label_text)
             race_label.pack(side=LEFT)
             
-            races_scale = Scale(race_frame, from_=0.00, to=1.00, digits=3, resolution=0.01, orient=HORIZONTAL)
+            races_scale = Scale(race_frame, from_=0.00, to=1.00, digits=3, resolution=0.01, orient=HORIZONTAL, length=148)
             races_scale.pack(side=LEFT)
 
-            # races_colors = ('royalblue', 'red', 'gold', 'limegreen', 'purple')
-            # races_color_value = StringVar()
-            # races_color_combobox = ttk.Combobox(race_frame, textvariable=races_color_value, state="readonly", values=races_colors)
-            # races_color_combobox.pack(side=LEFT)
-
-            # self.races_ratio_boxes.append((races_scale, races_color_combobox))
             self.races_ratio_boxes.append(races_scale)
 
             race_frame.pack(side=TOP)
+
         
         races_frame.pack(side=TOP)
 
@@ -277,14 +292,21 @@ class Application(Tk):
         self.button_row_frame = Frame(self.right_frame)
         self.button_row_frame.pack(side=BOTTOM, pady=20)
 
-        self.start_button = Button(self.button_row_frame, text='Start', bg="red1", fg="white")
+        self.start_button = Button(self.button_row_frame, text='Start', width=15, bg='red3', fg='white')
         self.start_button.pack(side=LEFT)
-        self.stop_button = Button(self.button_row_frame, text='Stop')
-        self.stop_button.pack(side=LEFT)
-        self.reset_button = Button(self.button_row_frame, text='Reset')
-        self.reset_button.pack(side=LEFT)
-        self.step_button = Button(self.button_row_frame, text='Step')
+        self.step_button = Button(self.button_row_frame, text='Step', width=15, bg='black', fg='white')
         self.step_button.pack(side=LEFT)
+
+
+        self.button_bottom_row_frame = Frame(self.right_frame)
+        self.button_bottom_row_frame.pack(side=BOTTOM, pady=0)
+        
+        self.load_button = Button(self.button_bottom_row_frame, text='LOAD', bg="royalblue3", fg="white", width=30)
+        self.load_button.pack(side=BOTTOM)
+
+
+    def get_race_ratios(self):
+        return [float(x.get()) for x in self.races_ratio_boxes] 
 
 
     def print_values(self):
@@ -294,10 +316,8 @@ class Application(Tk):
         print(self.schelling.population)
 
         print(self.empty_ratio_box.get())
-        # for (x, y) in self.races_ratio_boxes:
         for x in self.races_ratio_boxes:
             print(x.get())
-            # print(y.get())
         
         print(self.similarity_threshold_box.get())
 
@@ -317,5 +337,4 @@ app.mainloop()
 # canvas.mpl_connect("key_press_event", on_key_press)
 
 
-#TODO: Load button or dynamic loading?
-#TODO: Button commands
+# TODO: Iterations infitnet

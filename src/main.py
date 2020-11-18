@@ -67,6 +67,7 @@ class Schelling:
 
 
     def run_round(self):
+        number_unhappy = 0
         for (row, col), value in np.ndenumerate(self.population):
             race = self.population[row, col]
             if race != 0: # not empty
@@ -84,6 +85,7 @@ class Schelling:
                     similarity_ratio = number_similar / (neighbourhood_size - number_empty_entities - 1) 
                     
                     if similarity_ratio < self.similarity_threshold: # unhappy
+                        number_unhappy = number_unhappy + 1
                         try:
                             empty_entities = list(zip(np.where(self.population == 0)[0], np.where(self.population == 0)[1]))    
                             random_empty_entity = random.choice(empty_entities)
@@ -91,6 +93,9 @@ class Schelling:
                             self.population[row, col] = 0
                         except IndexError:
                             pass
+        if number_unhappy == 0:
+            return True
+        return False
 
 
     def create_plot(self):
@@ -133,14 +138,28 @@ class Application(Tk):
 
 
     def run_graph(self):
-        for i in range(self.number_iterations): 
-            self.run_round()
+        if self.number_iterations > 0:
+            for i in range(self.number_iterations): 
+                if self.run_round():
+                    break
+                self.simulation_status_label.config(text="Iteration " + str(i))
+        else:
+            i = 0
+            while True:
+                if self.run_round():
+                    break
+                i = i + 1
+                self.simulation_status_label.config(text="Iteration " + str(i))
+        self.simulation_status_label.config(text=self.simulation_status_label.cget("text") + "\nDone!")
+            
 
 
     def run_round(self):
-        self.schelling.run_round()
+        result = self.schelling.run_round()
         self.schelling.update_plot()
         self.canvas.draw()
+
+        return result
 
 
     def configure_components(self):
@@ -178,6 +197,7 @@ class Application(Tk):
     def validate_and_update(self):
         if self.validate_probabilities():
             self.update()
+            self.simulation_status_label.config(text="")
         else:
             threading.Thread(target=self.popupmsg, args=("The sum of the Empty Ratio and the Races' Ratios needs to be equal to 1!", )).start()
         return True
@@ -216,6 +236,10 @@ class Application(Tk):
        
 
     def create_text_box_frames(self):
+        # create parameters label
+        parameters_label = Label(self.right_frame, text="Model Parameters", font=("Verdana",16))
+        parameters_label.pack(side=TOP)
+
         # create iteration frame
         iteration_frame = Frame(self.right_frame)
 
@@ -223,7 +247,7 @@ class Application(Tk):
         iteration_label.pack(side=LEFT)
 
         iteration_value = StringVar()
-        self.iteration_box = Entry(iteration_frame, textvariable=iteration_value)
+        self.iteration_box = Entry(iteration_frame, textvariable=iteration_value, width=16)
         self.iteration_box.pack(side=LEFT)
 
         iteration_frame.pack(side=TOP)
@@ -236,8 +260,8 @@ class Application(Tk):
         population_label.pack(side=LEFT)
 
         population_value = StringVar()
-        self.population_box = Entry(population_frame, textvariable=population_value) # , validate="focusout")
-        self.population_box.pack(side=LEFT)
+        self.population_box = Entry(population_frame, textvariable=population_value, width=21) # , validate="focusout")
+        self.population_box.pack(side=RIGHT)
 
         population_frame.pack(side=TOP)
 
@@ -256,10 +280,10 @@ class Application(Tk):
         # create similarity threshold
         similarity_threshold_frame = Frame(self.right_frame)
 
-        similarity_threshold_label = Label(similarity_threshold_frame, text="Similarity Threshold ")
+        similarity_threshold_label = Label(similarity_threshold_frame, text="Similarity Threshold")
         similarity_threshold_label.pack(side=LEFT)
 
-        self.similarity_threshold_box = Scale(similarity_threshold_frame, from_=0.00, to=1.00, digits=3, resolution=0.01, orient=HORIZONTAL)
+        self.similarity_threshold_box = Scale(similarity_threshold_frame, from_=0.00, to=1.00, digits=3, resolution=0.01, orient=HORIZONTAL, length=110)
         self.similarity_threshold_box.pack(side=LEFT)
 
         similarity_threshold_frame.pack(side=TOP)
@@ -286,6 +310,10 @@ class Application(Tk):
 
         
         races_frame.pack(side=TOP)
+
+        # create status label
+        self.simulation_status_label = Label(self.right_frame, text="")
+        self.simulation_status_label.pack(side=BOTTOM)
 
 
     def create_button_row_frame(self):

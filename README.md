@@ -1,10 +1,33 @@
 # CRC Project 2
-Projecto 2
+Projecto 2 - Racial Segregation using Thomas C. Schelling Model
+
+---
 
 ### Grupo 15
 - 89905, João Gomes
 - 98649, Pedro Guerra
 - 98668, Ricardo Gonçalves
+
+----
+
+### Code Overview
+
+#TODO: 
+
+---
+
+### Dependencies
+- tkinter (in Python 3.1 or superior)
+- [matplotlib](https://pypi.org/project/matplotlib/)
+- [numpy](https://pypi.org/project/numpy/)
+
+---
+
+### Installation, configuration and execution
+
+#TODO
+
+---
 
 ### References
 - Schelling, T.C., [Dynamic models of segregation](http://norsemathology.org/longa/classes/stuff/DynamicModelsOfSegregation.pdf). Journal of Mathematical Sociology, 1971. 1(2): p. 143-186

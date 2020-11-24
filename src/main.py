@@ -70,10 +70,8 @@ class Schelling:
             race = self.population[row, col]
             if race != 0: # not empty
                 x_min = max(row - self.neighbour_depth, 0)
-                # x_max = min(row + self.neighbour_depth + 1, int(np.sqrt(self.size)))
                 x_max = min(row + self.neighbour_depth + 1, self.width)
                 y_min = max(col - self.neighbour_depth, 0)
-                # y_max = min(col + self.neighbour_depth + 1, int(np.sqrt(self.size)))
                 y_max = min(col + self.neighbour_depth + 1, self.height)
                 neighbourhood = self.population[x_min:x_max, y_min:y_max]
 
@@ -113,6 +111,43 @@ class Schelling:
         self.ax.pcolormesh(self.population, cmap=self.cmap, edgecolors='w', linewidths=1, vmin=0, vmax=5)
         self.fig.canvas.draw()
 
+
+    def statistics(self):
+        info_dict = {}
+        info_dict['Number_of_Empty'] = len(np.where(self.population == 0)[0])
+        info_dict['Number_of_RaceA'] = len(np.where(self.population == 1)[0])        
+        info_dict['Number_of_RaceB'] = len(np.where(self.population == 2)[0])        
+        info_dict['Number_of_RaceC'] = len(np.where(self.population == 3)[0])        
+        info_dict['Number_of_RaceD'] = len(np.where(self.population == 4)[0])        
+        info_dict['Number_of_RaceE'] = len(np.where(self.population == 5)[0])      
+
+        races_dict = {}
+        races_dict['1'] = {'1' : 0, '2' : 0, '3' : 0, '4' : 0, '5' : 0}
+        races_dict['2'] = {'1' : 0, '2' : 0, '3' : 0, '4' : 0, '5' : 0}
+        races_dict['3'] = {'1' : 0, '2' : 0, '3' : 0, '4' : 0, '5' : 0}
+        races_dict['4'] = {'1' : 0, '2' : 0, '3' : 0, '4' : 0, '5' : 0}
+        races_dict['5'] = {'1' : 0, '2' : 0, '3' : 0, '4' : 0, '5' : 0}
+
+        for (row, col), value in np.ndenumerate(self.population):
+            race = self.population[row, col]
+            if race != 0:
+                x_min = max(row - self.neighbour_depth, 0)
+                x_max = min(row + self.neighbour_depth + 1, self.width)
+                y_min = max(col - self.neighbour_depth, 0)
+                y_max = min(col + self.neighbour_depth + 1, self.height)
+                neighbourhood = self.population[x_min:x_max, y_min:y_max]
+
+                number_empty_entities = len(np.where(neighbourhood == 0)[0])
+                races_dict[str(race)]['1'] += len(np.where(neighbourhood == 1)[0]) 
+                races_dict[str(race)]['2'] += len(np.where(neighbourhood == 2)[0]) 
+                races_dict[str(race)]['3'] += len(np.where(neighbourhood == 3)[0]) 
+                races_dict[str(race)]['4'] += len(np.where(neighbourhood == 4)[0]) 
+                races_dict[str(race)]['5'] += len(np.where(neighbourhood == 5)[0])
+                races_dict[str(race)][str(race)] -= 1
+
+        info_dict['races_dict'] = races_dict
+
+        return info_dict
 
 
 
@@ -276,8 +311,14 @@ class Application(Tk):
 
 
     def create_button_row_frame(self):
+        self.button_bottom_row_frame = Frame(self.right_frame)
+        self.button_bottom_row_frame.pack(side=BOTTOM, pady=0)
+
+        self.stats_button = Button(self.button_bottom_row_frame, text='Stats', bg='yellow3', fg='white', width=30)
+        self.stats_button.pack(side=BOTTOM)
+
         self.button_row_frame = Frame(self.right_frame)
-        self.button_row_frame.pack(side=BOTTOM, pady=20)
+        self.button_row_frame.pack(side=BOTTOM, pady=10)
 
         self.start_button = Button(self.button_row_frame, text='Start', width=15, bg='red3', fg='white')
         self.start_button.pack(side=LEFT)
@@ -285,13 +326,13 @@ class Application(Tk):
         self.step_button.pack(side=LEFT)
 
 
-        self.button_bottom_row_frame = Frame(self.right_frame)
-        self.button_bottom_row_frame.pack(side=BOTTOM, pady=0)
+        self.button_top_row_frame = Frame(self.right_frame)
+        self.button_top_row_frame.pack(side=BOTTOM, pady=0)
         
-        self.load_button = Button(self.button_bottom_row_frame, text='LOAD', bg="royalblue3", fg="white", width=30)
+        self.load_button = Button(self.button_top_row_frame, text='LOAD', bg="royalblue3", fg="white", width=30)
         self.load_button.pack(side=BOTTOM)
 
-
+       
     def configure_components(self):
         self.iteration_box.insert(0, self.number_iterations)
 
@@ -312,6 +353,8 @@ class Application(Tk):
         self.step_button.configure(command=self.run_round)
 
         self.load_button.configure(command=self.validate_and_update)
+
+        self.stats_button.configure(command=self.display_stats)
 
         self.random_button.configure(command=self.toggle_random_ratios)
         
@@ -348,9 +391,9 @@ class Application(Tk):
                     self.update()
                     self.simulation_status_label.config(text="Load Complete!")
                 else:
-                    threading.Thread(target=self.popupmsg, args=("The sum of the Empty Ratio and the Races' Ratios needs to be equal to 1!", )).start()
+                    threading.Thread(target=self.popupmsg, args=("The sum of the Empty Ratio and the Races' Ratios needs to be equal to 1!", "Invalid values!")).start()
             else:
-                threading.Thread(target=self.popupmsg, args=("There can't be no empty parameters!", )).start()
+                threading.Thread(target=self.popupmsg, args=("There can't be no empty parameters!", "Invalid values!")).start()
         else:
             self.generate_random_races_with_random_ratios()
             self.update()
@@ -385,15 +428,18 @@ class Application(Tk):
             self.races_ratio_boxes[i].configure(state="disabled")
 
 
-    def popupmsg(self, msg):
+    def popupmsg(self, msg, name):
         popup = Tk()
+        popup.minsize(400, 100)
+        popup.protocol("WM_DELETE_WINDOW", lambda:[popup.quit()])
         popup.resizable(False, False)
-        popup.wm_title("Invalid values!")
+        popup.wm_title(name)
         label = Label(popup, text=msg)
         label.pack(side="top", fill="x", pady=10)
-        B1 = Button(popup, text="Okay", command = popup.destroy)
+        B1 = Button(popup, text="Okay", command = lambda:[popup.quit()])
         B1.pack(pady=10)
         popup.mainloop()
+        popup.destroy()
 
 
     def validate_parameters(self):
@@ -406,7 +452,7 @@ class Application(Tk):
         ratios = self.get_race_ratios()
         ratios_sum = 0
         for i in ratios:
-            if not i:
+            if i == None:
                 return
             ratios_sum += float(i)
         ratios_sum = round(ratios_sum, 3)
@@ -456,6 +502,25 @@ class Application(Tk):
             print(x.get())
         
         print(self.similarity_threshold_box.get())
+
+
+    def display_stats(self):
+        stats = self.schelling.statistics()
+        result_str = ""
+        for key, value in stats.items():
+            if key == "races_dict":
+                continue
+            result_str += key + ":\t" + str(value) + "\n"
+
+        result_str += "\n"
+
+        for key, value in stats['races_dict'].items():
+            result_str += "Race " + (chr(ord('A') + int(key) - 1)) + " Neighbours: \n"
+            for key1, value1 in value.items():
+                result_str +=  "\tRace " + (chr(ord('A') + int(key1) - 1)) + " Number: " + str(value1) + " "
+            result_str += '\n\n'
+
+        self.popupmsg(result_str, "Simulation Statistics")
 
 
     def _quit(self):

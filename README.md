@@ -36,7 +36,7 @@ cd ./src
 python main.py
 ```
 
-![alt text](https://github.com/siimplex/crc-project-2/demo.png "Program Window")
+![alt text](https://github.com/siimplex/crc-project-2/blob/main/demo.png "Program Window")
 
 ---
 

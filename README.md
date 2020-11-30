@@ -3,29 +3,40 @@ Projecto 2 - Racial Segregation using Thomas C. Schelling Model
 
 ---
 
-### Grupo 15
+## Grupo 15
 - 89905, João Gomes
 - 98649, Pedro Guerra
 - 98668, Ricardo Gonçalves
 
 ----
 
-### Code Overview
+## Code Overview
 
 #TODO: 
 
 ---
 
-### Dependencies
+## Dependencies
 - tkinter (in Python 3.1 or superior)
 - [matplotlib](https://pypi.org/project/matplotlib/)
 - [numpy](https://pypi.org/project/numpy/)
 
 ---
 
-### Installation, configuration and execution
+## Installation and execution
 
-#TODO
+### Installation
+```bash
+git clone https://github.com/siimplex/crc-project-2.git
+```
+
+### Execution 
+```bash
+cd ./src 
+python main.py
+```
+
+![alt text][https://github.com/siimplex/crc-project-2/demo.png]
 
 ---
 

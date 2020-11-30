@@ -25,18 +25,47 @@ Projecto 2 - Racial Segregation using Thomas C. Schelling Model
 
 ## Installation and execution
 
-### Installation
+1. Clone this repository
+
 ```bash
 git clone https://github.com/siimplex/crc-project-2.git
 ```
 
-### Execution 
+2. Open a terminal and install the dependecies
+
 ```bash
-cd ./src 
+pip install -r requirements.txt
+```
+
+3. Run the program
+
+```bash
+cd src
 python main.py
 ```
 
-![alt text](https://github.com/siimplex/crc-project-2/blob/main/demo.png "Program Window")
+### Demo 
+
+![execution example](https://github.com/siimplex/crc-project-2/blob/main/demo.png "Program Window")
+
+Parameters:
+
+- **Number of Iterations**: integer less or equal than 0 will run indefinitely else the number in the text box is used;
+- **Population Width**: number of columns in the board;
+- **Population Height**: number of lines in the board;
+- **Neighbourhood Depth**: the radius of each individual's neighbourhood;
+- **Similarity Threshold**: float number between 0.0 and 1.0;
+
+- **Toggle Random**: button that toggles between random ratios and user inputted ratios;
+- **Empty Ratio**: the ratio of empty spaces, float number between 0.0 and 1.0;
+- **Races Ratios(A-E)**: the ratios of the races, float number between 0.0 and 1.0;
+
+Buttons:
+
+- **Load**: load a new board based on the paramaters;
+- **Start**: starts the simulation, and runs for the number of iterations or indefinitely;
+- **Step**: runs a single iteration of the simulation;
+- **Stats**: shows a popup with the number of individuals and number of neighbours based on it's race;
 
 ---
 

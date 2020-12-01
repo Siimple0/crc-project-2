@@ -12,12 +12,10 @@ from matplotlib.figure import Figure
 
 class Schelling:
 
-    def __init__(self, width, height, empty_ratio, similarity_threshold, neighbour_depth):
-        self.model_configure(width, height, empty_ratio, similarity_threshold, neighbour_depth)
+    def __init__(self, width, height, empty_ratio, similarity_threshold, neighbour_depth, races_ratios=None):
+        self.model_configure(width, height, empty_ratio, similarity_threshold, neighbour_depth, races_ratios)
 
         self.cmap = ListedColormap(['white', 'gold', 'limegreen', 'purple', 'red', 'royalblue'])
-
-        self.create_plot()
 
     
     def model_configure(self, width, height, empty_ratio, similarity_threshold, neighbour_depth, races_ratios=None):
@@ -28,7 +26,7 @@ class Schelling:
         self.neighbour_depth = neighbour_depth
 
         if races_ratios:
-            ratios = races_ratios
+            ratios = races_ratios.copy()
             ratios.insert(0, empty_ratio)
         else: 
             ratios = [
@@ -53,10 +51,16 @@ class Schelling:
         for x in self.population:
             row_str = "| "
             for y in x:
-                if y == -1:
+                if y == 1:
                     row_str += "# "
-                elif y == 1:
+                elif y == 2:
                     row_str += "O "
+                elif y == 3:
+                    row_str += "* "
+                elif y == 4:
+                    row_str += "+ "
+                elif y == 5:
+                    row_str += "X "
                 else:
                     row_str += "  "
             row_str = row_str[:-1] + "|" 
@@ -69,11 +73,7 @@ class Schelling:
         for (row, col), value in np.ndenumerate(self.population):
             race = self.population[row, col]
             if race != 0: # not empty
-                x_min = max(row - self.neighbour_depth, 0)
-                x_max = min(row + self.neighbour_depth + 1, self.width)
-                y_min = max(col - self.neighbour_depth, 0)
-                y_max = min(col + self.neighbour_depth + 1, self.height)
-                neighbourhood = self.population[x_min:x_max, y_min:y_max]
+                neighbourhood = self.get_neighbourhood(row, col)
 
                 neighbourhood_size = np.size(neighbourhood)
                 number_empty_entities = len(np.where(neighbourhood == 0)[0]) # number of empty entities on the neighbourhood
@@ -112,6 +112,25 @@ class Schelling:
         self.fig.canvas.draw()
 
 
+    def get_neighbourhood(self, row, col):
+        x_min = max(row - self.neighbour_depth, 0)
+        x_max = min(row + self.neighbour_depth + 1, self.width)
+        y_min = max(col - self.neighbour_depth, 0)
+        y_max = min(col + self.neighbour_depth + 1, self.height)
+        neighbourhood = self.population[x_min:x_max, y_min:y_max]
+        return neighbourhood
+
+
+    def get_ratio_of_individuals_same_race_in_neighbourhood(self, row, col):
+        race = self.population[row, col]
+        if race != 0:
+            neighbourhood = self.get_neighbourhood(row, col)
+            size = np.size(neighbourhood) - 1
+            number = len(np.where(neighbourhood == race)[0]) - 1
+            ratio = number / size
+            return ratio
+        return 0
+
     def statistics(self):
         info_dict = {}
         info_dict['Number_of_Empty'] = len(np.where(self.population == 0)[0])
@@ -131,11 +150,7 @@ class Schelling:
         for (row, col), value in np.ndenumerate(self.population):
             race = self.population[row, col]
             if race != 0:
-                x_min = max(row - self.neighbour_depth, 0)
-                x_max = min(row + self.neighbour_depth + 1, self.width)
-                y_min = max(col - self.neighbour_depth, 0)
-                y_max = min(col + self.neighbour_depth + 1, self.height)
-                neighbourhood = self.population[x_min:x_max, y_min:y_max]
+                neighbourhood = self.get_neighbourhood(row, col)
 
                 number_empty_entities = len(np.where(neighbourhood == 0)[0])
                 races_dict[str(race)]['1'] += len(np.where(neighbourhood == 1)[0]) 
@@ -177,6 +192,7 @@ class Application(Tk):
     def create_and_add_model(self):
         self.number_iterations = 20
         self.schelling = Schelling(10, 10, 0.5, 0.8, 1)
+        self.schelling.create_plot()
         self.draw_canvas()
         
 
@@ -184,6 +200,14 @@ class Application(Tk):
         self.canvas = FigureCanvasTkAgg(self.schelling.fig, master=self.left_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=True)
+
+        self.toolbar = NavigationToolbar2Tk(self.canvas, self.right_frame)
+        self.toolbar.update()
+
+        self.canvas.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=1)
+
+
+
 
 
     def create_text_box_frames(self):
@@ -469,6 +493,7 @@ class Application(Tk):
         self.schelling.update_plot()
 
         self.canvas.get_tk_widget().pack_forget()
+        self.toolbar.pack_forget()
 
         self.draw_canvas()
        
@@ -528,8 +553,8 @@ class Application(Tk):
         self.destroy()
 
 
-
-app = Application()
-app.minsize(1000, 700)
-app.protocol("WM_DELETE_WINDOW", app._quit)
-app.mainloop()
+if __name__ == "__main__":
+    app = Application()
+    app.minsize(1000, 700)
+    app.protocol("WM_DELETE_WINDOW", app._quit)
+    app.mainloop()

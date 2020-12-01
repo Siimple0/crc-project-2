@@ -55,10 +55,9 @@ Parameters:
 - **Population Height**: number of lines in the board;
 - **Neighbourhood Depth**: the radius of each individual's neighbourhood;
 - **Similarity Threshold**: float number between 0.0 and 1.0;
-
 - **Toggle Random**: button that toggles between random ratios and user inputted ratios;
 - **Empty Ratio**: the ratio of empty spaces, float number between 0.0 and 1.0;
-- **Races Ratios(A-E)**: the ratios of the races, float number between 0.0 and 1.0;
+- **Races Ratios (A-E)**: the ratios of the races, float number between 0.0 and 1.0;
 
 Buttons:
 

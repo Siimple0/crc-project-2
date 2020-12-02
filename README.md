@@ -1,5 +1,5 @@
 # CRC Project 2
-Projecto 2 - Racial Segregation using Thomas C. Schelling Model
+Project 2 - Racial Segregation using Thomas C. Schelling Model
 
 ---
 
@@ -8,7 +8,16 @@ Projecto 2 - Racial Segregation using Thomas C. Schelling Model
 - 98649, Pedro Guerra
 - 98668, Ricardo Gonçalves
 
-----
+---
+
+## Overview
+
+* `schelling.py` - Schelling Segregation Model Simulation program
+* `graph.py` - program that generates graph of the average ratio of neighbours of the same color depending on the similarity threshold
+
+
+
+---
 
 ## Code Overview
 
@@ -20,6 +29,7 @@ Projecto 2 - Racial Segregation using Thomas C. Schelling Model
 - tkinter (in Python 3.1 or superior)
 - [matplotlib](https://pypi.org/project/matplotlib/)
 - [numpy](https://pypi.org/project/numpy/)
+- [configparser](https://pypi.org/project/configparser/)
 
 ---
 
@@ -37,14 +47,21 @@ git clone https://github.com/siimplex/crc-project-2.git
 pip install -r requirements.txt
 ```
 
-3. Run the program
+3. Run the Schelling Segregation Model Simulation
 
 ```bash
 cd src
-python main.py
+python schelling.py
 ```
 
-### Demo 
+4. (Optional) Edit graph.ini file and run the graph program
+
+```bash
+vi graph.ini
+python graph.py ../graph.ini
+```
+
+### Demo (Schelling Segregation Model Simulation)
 
 ![execution example](https://github.com/siimplex/crc-project-2/blob/main/demo.png "Program Window")
 
@@ -66,6 +83,7 @@ Buttons:
 - **Step**: runs a single iteration of the simulation;
 - **Stats**: shows a popup with the number of individuals and number of neighbours based on it's race;
 
+
 ---
 
 ### References
@@ -79,3 +97,4 @@ Buttons:
 - [Schelling’s Segregation Model](https://python.quantecon.org/schelling.html)
 - [tkinter documentation](https://docs.python.org/3/library/tkinter.html)
 - [matplotlib documentation](https://matplotlib.org/3.3.3/contents.html)
+- [configparser documentation](https://docs.python.org/3/library/configparser.html)

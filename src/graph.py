@@ -13,6 +13,11 @@ class BigGraph:
         
         self.values = [[0.0 for y in range(self.simulations)] for x in range(100)]
 
+        """
+            [25,21,12,25,0]
+
+        """
+
 
         self.schelling = Schelling(self.width, self.height, self.emptyratio, self.threshold, self.ndepth, self.races)
     
@@ -54,6 +59,7 @@ class BigGraph:
                 self.values[self.threshold - 1][number_of_simulation_in_threshold] = self.compute_neighbourhood_numbers()
                 number_of_simulation_in_threshold += 1
 
+            print(self.threshold)
             self.threshold += 1
 
         return self.values
@@ -62,9 +68,12 @@ class BigGraph:
 
     def compute_neighbourhood_numbers(self):
         neigh_sum = 0
+        number_of_ind = 0
         for (row, col), value in np.ndenumerate(self.schelling.population):
-            neigh_sum += self.schelling.get_ratio_of_individuals_same_race_in_neighbourhood(row, col)
-        return neigh_sum
+            if self.schelling.get_race(row,col) != 0:
+                neigh_sum += self.schelling.get_ratio_of_individuals_same_race_in_neighbourhood(row, col)
+                number_of_ind += 1
+        return neigh_sum / number_of_ind
 
 
     def compute_average(self, matrix):

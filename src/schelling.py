@@ -123,13 +123,14 @@ class Schelling:
 
     def get_ratio_of_individuals_same_race_in_neighbourhood(self, row, col):
         race = self.population[row, col]
-        if race != 0:
-            neighbourhood = self.get_neighbourhood(row, col)
-            size = np.size(neighbourhood) - 1
-            number = len(np.where(neighbourhood == race)[0]) - 1
-            ratio = number / size
-            return ratio
-        return 0
+        neighbourhood = self.get_neighbourhood(row, col)
+        size = np.size(neighbourhood) - 1
+        number = len(np.where(neighbourhood == race)[0]) - 1
+        ratio = number / size
+        return ratio
+
+    def get_race(self, row, col):
+        return self.population[row, col]
 
     def statistics(self):
         info_dict = {}

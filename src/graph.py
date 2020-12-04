@@ -1,6 +1,7 @@
 from schelling import *
 import configparser
 import sys
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,11 +13,6 @@ class BigGraph:
         self.read_properties(confFile)
         
         self.values = [[0.0 for y in range(self.simulations)] for x in range(100)]
-
-        """
-            [25,21,12,25,0]
-
-        """
 
 
         self.schelling = Schelling(self.width, self.height, self.emptyratio, self.threshold, self.ndepth, self.races)
@@ -32,6 +28,8 @@ class BigGraph:
         self.width = config['DEFAULT'].getint('popwidth')
         self.height = config['DEFAULT'].getint('popheight')
         self.ndepth = config['DEFAULT'].getint('ndepth')
+        self.random = config['DEFAULT'].getboolean('random')
+        self.numberraces = config['DEFAULT'].getint('numberraces')
         self.emptyratio = config['DEFAULT'].getfloat('emptyratio')
         self.races = [
             config['DEFAULT'].getfloat('raratio'),
@@ -64,6 +62,36 @@ class BigGraph:
 
         return self.values
 
+    def compute_random(self):
+        while self.threshold <= 100:
+            number_of_simulation_in_threshold = 0
+
+            while number_of_simulation_in_threshold < self.simulations:
+                number_iterations = 0
+                eff_threshold = self.threshold / 100
+                self.emptyratio = round(random.uniform(0, 1), 2)
+                ratio_total = self.emptyratio
+                races = [0, 0, 0, 0, 0]
+                for i in range(self.numberraces):
+                    if i == self.numberraces - 1:
+                        races[i] = round(1 - ratio_total, 2)
+                    else:
+                        races[i] = round(random.uniform(0, 1 - ratio_total), 2)
+                    ratio_total = ratio_total + races[i]
+                self.races = races
+                self.schelling.model_configure(self.width, self.height, self.emptyratio, eff_threshold, self.ndepth, self.races)
+
+                while not self.schelling.run_round() and number_iterations < self.maxiterations:
+                    number_iterations += 1
+                
+                self.values[self.threshold - 1][number_of_simulation_in_threshold] = self.compute_neighbourhood_numbers()
+                number_of_simulation_in_threshold += 1
+
+            print(self.threshold)
+            self.threshold += 1
+
+        return self.values
+
 
 
     def compute_neighbourhood_numbers(self):
@@ -73,6 +101,8 @@ class BigGraph:
             if self.schelling.get_race(row,col) != 0:
                 neigh_sum += self.schelling.get_ratio_of_individuals_same_race_in_neighbourhood(row, col)
                 number_of_ind += 1
+        if number_of_ind == 0:
+            return 1
         return neigh_sum / number_of_ind
 
 
@@ -102,18 +132,14 @@ class BigGraph:
 if len(sys.argv) != 1:
     path = sys.argv[1]
     bg = BigGraph(path)
-
-    values = bg.compute()
+    if not bg.random:
+        values = bg.compute()
+    else: 
+        values = bg.compute_random()
 
     min_values = bg.get_min(values)
     average_values = bg.compute_average(values)
     max_values = bg.get_max(values)
-
-    # print(min_values)
-    # print('===========================================')
-    # print(average_values)
-    # print('===========================================')
-    # print(max_values)
 
     x_coords = [x / 100 for x in range(1, 101)]
     plt.plot(x_coords, min_values, label='Min')

@@ -83,6 +83,42 @@ Buttons:
 - **Step**: runs a single iteration of the simulation;
 - **Stats**: shows a popup with the number of individuals and number of neighbours based on it's race;
 
+---
+
+### Graph calculation - graph.ini 
+
+```bash
+[DEFAULT]
+nsimulations=20
+
+maxniterations=1000
+popwidth=25
+popheight=25
+
+ndepth=1
+
+random=False
+numberraces=2
+
+emptyratio=0.15
+raratio=0.4
+rbratio=0.15
+rcratio=0.15
+rdratio=0.15
+reratio=0
+```
+
+Parameters:
+
+- **nsimulation**: Number of simulations per 0.01 of threshold;
+- **maxniterations**: Max number of iterations before stopping the board;
+- **popwidth**: number of columns of the boards;
+- **popheight**: number of lines of the boards;
+- **ndepth**: the radius of each individual's neighbourhood;
+- **random**: if True doesn't read any ratios else reads the ratios normally;
+- **numberraces**: number of races in each board;
+- **emptyratio**: the ratio of empty spaces, float number between 0.0 and 1.0;
+- **r(a-e)ratio**: the ratios of the races, float number between 0.0 and 1.0;
 
 ---
 

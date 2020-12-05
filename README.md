@@ -21,7 +21,36 @@ Project 2 - Racial Segregation using Thomas C. Schelling Model
 
 ## Code Overview
 
-#TODO: 
+Function that applies a round of the Schelling Model on the current board
+
+```python
+def run_round(self):
+        number_unhappy = 0
+        for (row, col), value in np.ndenumerate(self.population):
+            race = self.population[row, col]
+            if race != 0: # not empty
+                neighbourhood = self.get_neighbourhood(row, col)
+
+                neighbourhood_size = np.size(neighbourhood)
+                number_empty_entities = len(np.where(neighbourhood == 0)[0]) # number of empty entities on the neighbourhood
+                
+                if neighbourhood_size != number_empty_entities + 1: # plus the current node
+                    number_similar = len(np.where(neighbourhood == race)[0]) - 1
+                    similarity_ratio = number_similar / (neighbourhood_size - number_empty_entities - 1) 
+                    
+                    if similarity_ratio < self.similarity_threshold: # unhappy
+                        number_unhappy = number_unhappy + 1
+                        try:
+                            empty_entities = list(zip(np.where(self.population == 0)[0], np.where(self.population == 0)[1]))    
+                            random_empty_entity = random.choice(empty_entities)
+                            self.population[random_empty_entity] = race
+                            self.population[row, col] = 0
+                        except IndexError:
+                            pass
+        if number_unhappy == 0:
+            return True
+        return False
+```
 
 ---
 

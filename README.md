@@ -34,7 +34,7 @@ def run_round(self):
                 neighbourhood_size = np.size(neighbourhood)
                 number_empty_entities = len(np.where(neighbourhood == 0)[0]) # number of empty entities on the neighbourhood
                 
-                if neighbourhood_size != number_empty_entities + 1: # plus the current node
+                if neighbourhood_size != number_empty_entities + 1: # if its empty
                     number_similar = len(np.where(neighbourhood == race)[0]) - 1
                     similarity_ratio = number_similar / (neighbourhood_size - number_empty_entities - 1) 
                     
@@ -51,6 +51,31 @@ def run_round(self):
             return True
         return False
 ```
+
+Function that computes the values to represent a graph that represent the average of the ratio of neighbours of the same race in function on the similarity threshold
+
+```python
+def compute(self):
+        while self.threshold <= 100:
+            number_of_simulation_in_threshold = 0
+
+            while number_of_simulation_in_threshold < self.simulations:
+                number_iterations = 0
+                eff_threshold = self.threshold / 100
+                self.schelling.model_configure(self.width, self.height, self.emptyratio, eff_threshold, self.ndepth, self.races)
+
+                while not self.schelling.run_round() and number_iterations < self.maxiterations:
+                    number_iterations += 1
+                
+                self.values[self.threshold - 1][number_of_simulation_in_threshold] = self.compute_neighbourhood_numbers()
+                number_of_simulation_in_threshold += 1
+
+            print(self.threshold)
+            self.threshold += 1
+
+        return self.values
+```
+
 
 ---
 

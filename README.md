@@ -123,7 +123,7 @@ Main Window
 
 Stats Window
 
-![execution example](https://github.com/siimplex/crc-project-2/blob/main/demo_stats.png "Program Window")
+![execution example](https://github.com/siimplex/crc-project-2/blob/main/demo_stats.png "Stats Window")
 
 Parameters:
 
@@ -145,7 +145,11 @@ Buttons:
 
 ---
 
-### Graph calculation - graph.ini 
+### Demo Graph calculation 
+
+![graph execution example](https://github.com/siimplex/crc-project-2/blob/main/images/Figura12.png "Graph Window")
+
+#### graph.ini 
 
 ```bash
 [DEFAULT]

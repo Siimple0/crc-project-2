@@ -202,10 +202,10 @@ class Application(Tk):
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=True)
 
-        self.toolbar = NavigationToolbar2Tk(self.canvas, self.right_frame)
-        self.toolbar.update()
+        # self.toolbar = NavigationToolbar2Tk(self.canvas, self.right_frame)
+        # self.toolbar.update()
 
-        self.canvas.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=1)
+        # self.canvas.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=1)
 
 
 
@@ -494,7 +494,7 @@ class Application(Tk):
         self.schelling.update_plot()
 
         self.canvas.get_tk_widget().pack_forget()
-        self.toolbar.pack_forget()
+        # self.toolbar.pack_forget()
 
         self.draw_canvas()
        

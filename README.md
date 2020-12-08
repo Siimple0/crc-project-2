@@ -117,7 +117,13 @@ python graph.py ../graph.ini
 
 ### Demo (Schelling Segregation Model Simulation)
 
+Main Window
+
 ![execution example](https://github.com/siimplex/crc-project-2/blob/main/demo.png "Program Window")
+
+Stats Window
+
+![execution example](https://github.com/siimplex/crc-project-2/blob/main/demo_stats.png "Program Window")
 
 Parameters:
 
